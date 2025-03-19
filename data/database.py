@@ -144,6 +144,45 @@ except Exception as e:
     print(f"Connection failed. Error: {str(e)}")
 
 
+# Create the SQLAlchemy engine (FS DB)
+engine = create_engine(f"mssql+pyodbc:///?odbc_connect={fs_params}")
+# Try to connect and execute a simple query
+try:
+    with engine.connect() as connection:
+
+        # Write SQL Query here
+        query = text(
+                     
+     """
+            SELECT ORG
+            ,CONCAT(ORG,RIGHT(LINE,1)) COLLATE DATABASE_DEFAULT AS LINE
+            ,CONVERT(DATE,ACTUAL_START_TIME) AS JOB_START_DATE
+            ,COUNT(JOB_NUMBER) AS TOTAL_JOBS_FOR_LINE_ON_THIS_DAY
+
+            FROM history.LMS_Workbench
+            WHERE ORG = 'LOU'
+            AND LINE IN ('LU1', 'LU2', 'LU3', 'LU4', 'LU5')
+            AND DATEDIFF(DAY,ACTUAL_START_TIME, GETDATE()) <= 180
+            AND Job_Status = 'Finished'
+            GROUP BY ORG, LINE, CONVERT(DATE,ACTUAL_START_TIME)
+
+    """
+                     )
+
+        result = connection.execute(query)
+        print(result)
+        lou_total_prod_jobs_per_day = pd.DataFrame(result.fetchall(), columns=result.keys())
+        print(lou_total_prod_jobs_per_day)
+
+        print(lou_mes_retrieval_requests.dtypes)
+        print(lou_total_cases_produced.dtypes)
+        print(lou_total_cases_shipped.dtypes)
+        print(lou_total_prod_jobs_per_day.dtypes)
+        
+
+except Exception as e:
+    print(f"Connection failed. Error: {str(e)}")
+
 
 
 
