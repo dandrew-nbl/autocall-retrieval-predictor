@@ -126,3 +126,8 @@ def prepare_numerical_matrix(df_enriched):
     available_columns = [col for col in numerical_columns if col in df_enriched.columns]
     
     return df_enriched[available_columns]
+
+# TESTING
+df_enriched_test = create_enriched_dataset()
+prepare_numerical_matrix(df_enriched_test)
+
