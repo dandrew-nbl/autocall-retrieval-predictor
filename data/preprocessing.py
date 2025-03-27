@@ -11,10 +11,10 @@ def create_enriched_dataset():
     df_total_daily_jobs = load_daily_jobs_data()
     
     # Convert dates
-    df_fetch_requests['insert_date'] = pd.to_datetime(df_fetch_requests['insert_date'])
-    df_fetch_requests['complete_date'] = pd.to_datetime(df_fetch_requests['complete_date'])
-    df_fetch_requests['insert_dttm'] = pd.to_datetime(df_fetch_requests['insert_dttm'])
-    df_fetch_requests['complete_dttm'] = pd.to_datetime(df_fetch_requests['complete_dttm'])
+    # df_fetch_requests['insert_date'] = pd.to_datetime(df_fetch_requests['insert_date'])
+    # df_fetch_requests['complete_date'] = pd.to_datetime(df_fetch_requests['complete_date'])
+    # df_fetch_requests['insert_dttm'] = pd.to_datetime(df_fetch_requests['insert_dttm'])
+    # df_fetch_requests['complete_dttm'] = pd.to_datetime(df_fetch_requests['complete_dttm'])
     
     # Merge production and shipping data
     df_enriched = pd.merge(
