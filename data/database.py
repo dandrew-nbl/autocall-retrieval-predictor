@@ -176,6 +176,22 @@ def load_retrieval_data():
             #print(lou_mes_retrieval_requests)
             df = lou_mes_retrieval_requests
 
+            # EDA to clean data because dataframe comes out of SQL quite raw
+
+            #Convert column names to lowercase and replace spaces with underscore
+            df.columns = df.columns.str.lower().str.replace(' ', '_')
+
+            # Convert insert_dttm and complete_dttm from object to datetime
+            df["insert_dttm"] = pd.to_datetime(df["insert_dttm"])
+            df["complete_dttm"] = pd.to_datetime(df["complete_dttm"])
+
+            # Create two new columns by converting insert_dttm & complete_dttm from object to another object which excludes timestamp
+            df["insert_date"] = pd.to_datetime(df["insert_dttm"]).dt.date
+            df["complete_date"] = pd.to_datetime(df["complete_dttm"]).dt.date
+
+            #Convert target variable from int to float
+            df["duration_in_minutes"] = df["duration_in_minutes"].astype(float)
+
     except Exception as e:
         print(f"Connection failed. Error: {str(e)}")
 
@@ -287,4 +303,6 @@ def load_daily_jobs_data():
 
     return df
 
-load_daily_jobs_data()
+df_for_test = load_retrieval_data()
+print(list(df_for_test.columns))
+print(df_for_test.dtypes)
