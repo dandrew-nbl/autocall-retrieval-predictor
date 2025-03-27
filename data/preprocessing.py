@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from data.database import load_retrieval_data, load_production_data, load_shipping_data
+from data.database import load_retrieval_data, load_production_data, load_shipping_data, load_daily_jobs_data
 
 def create_enriched_dataset():
     """Create the enriched dataset with all features"""
