@@ -225,6 +225,12 @@ def load_production_data():
             print(lou_total_cases_produced)
             df = lou_total_cases_produced
 
+            #Convert column names to lowercase and replace spaces with underscore
+            df.columns = df.columns.str.lower().str.replace(' ', '_')
+
+            #Convert total cases produced from float to int
+            df.total_cases_produced = df.total_cases_produced.astype(int)
+
     except Exception as e:
         print(f"Connection failed. Error: {str(e)}")
 
@@ -264,6 +270,9 @@ def load_shipping_data():
             print(lou_total_cases_shipped)
             df = lou_total_cases_shipped
 
+            #Convert column names to lowercase and replace spaces with underscore
+            df.columns = df.columns.str.lower().str.replace(' ', '_')
+
     except Exception as e:
         print(f"Connection failed. Error: {str(e)}")
     return df
@@ -297,11 +306,16 @@ def load_daily_jobs_data():
             print(result)
             lou_total_prod_jobs_per_day = pd.DataFrame(result.fetchall(), columns=result.keys())
             df = lou_total_prod_jobs_per_day
+
+            #Convert column names to lowercase and replace spaces with underscore
+            df.columns = df.columns.str.lower().str.replace(' ', '_')
     
     except Exception as e:
         print(f"Connection failed. Error: {str(e)}")
 
     return df
 
-df_for_test = load_production_data()
+df_for_test = load_daily_jobs_data()
 print(list(df_for_test.columns))
+print(df_for_test.dtypes)
+print(df_for_test.head())
