@@ -1,35 +1,56 @@
 import pandas as pd
 import numpy as np
-from database import load_retrieval_data, load_production_data, load_shipping_data, load_daily_jobs_data
+from database import load_item_lookup_data, load_retrieval_data, load_production_data, load_shipping_data #, load_daily_jobs_data
+
+#Removing import for total daily jobs since we're not using that feature anymore
 
 def create_enriched_dataset():
     """Create the enriched dataset with all features"""
     # Load data
+    df_item_lookup = load_item_lookup_data()
     df_fetch_requests = load_retrieval_data()
     df_production = load_production_data()
     df_shipping = load_shipping_data()
     df_total_daily_jobs = load_daily_jobs_data()
     
-    # Convert dates
-    # df_fetch_requests['insert_date'] = pd.to_datetime(df_fetch_requests['insert_date'])
-    # df_fetch_requests['complete_date'] = pd.to_datetime(df_fetch_requests['complete_date'])
-    # df_fetch_requests['insert_dttm'] = pd.to_datetime(df_fetch_requests['insert_dttm'])
-    # df_fetch_requests['complete_dttm'] = pd.to_datetime(df_fetch_requests['complete_dttm'])
-    
-    # Merge production and shipping data
+
+    # Merge item lookup and fetch requests
     df_enriched = pd.merge(
+        df_item_lookup,
         df_fetch_requests, 
-        df_production.rename(columns={'date': 'insert_date', 'prod_line': 'line'}),
-        on=['insert_date', 'line'], 
-        how='left'
+        left_on='item', 
+        right_on='sku'
+        how='inner'
     )
-    
+
+    # Merge with production data
     df_enriched = pd.merge(
-        df_enriched,
-        df_shipping.rename(columns={'shipped_date': 'insert_date'}),
-        on='insert_date',
-        how='left'
+        df_enriched, 
+        df_production,
+        left_on='insert_date', 
+        right_on='date'
+        how='left'      #Change this to an inner join later
     )
+
+    # Merge with shipping data
+    df_enriched = pd.merge(
+        df_enriched, 
+        df_shipped,
+        left_on='insert_date', 
+        right_on='shipped_date'
+        how='inner'
+    )
+
+
+#Removing merge to total_daily_jobs because we're not using that feature anymore
+    # # Merge with total daily jobs data
+    # df_enriched = pd.merge(
+    #     df_enriched, 
+    #     df_total_daily_jobs,
+    #     left_on='insert_date', 
+    #     right_on='shipped_date'
+    #     how='inner'
+    # ) 
     
     # Create line and item type dummy variables
     for line in ['LOU1', 'LOU2', 'LOU3', 'LOU4', 'LOU5']:
