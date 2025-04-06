@@ -303,6 +303,5 @@ def load_daily_jobs_data():
 
     return df
 
-df_for_test = load_retrieval_data()
+df_for_test = load_production_data()
 print(list(df_for_test.columns))
-print(df_for_test.dtypes)
