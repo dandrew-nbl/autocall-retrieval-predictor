@@ -197,6 +197,39 @@ def load_retrieval_data():
 
     return df
 
+def load_item_lookup_data():
+    # Create the SQLAlchemy engine (FS DB)
+    engine = get_fs_db_connection()
+    
+    try:
+        with engine.connect() as connection:
+
+            # Write SQL Query here
+            query = text("""
+                        
+                        SELECT DISTINCT
+                        SEGMENT1 as item
+                        ,ITEM_TYPE as item_type
+                        ,DESCRIPTION as description
+
+                        FROM Inventory.EBS_Item 
+            
+                        """)
+
+            result = connection.execute(query)
+            #print(result)
+            item_lookup = pd.DataFrame(result.fetchall(), columns=result.keys())
+            #print(item_lookup)
+            df = item_lookup
+
+            #Convert column names to lowercase and replace spaces with underscore
+            df.columns = df.columns.str.lower().str.replace(' ', '_')
+
+    except Exception as e:
+        print(f"Connection failed. Error: {str(e)}")
+
+    return df
+
 def load_production_data():
     # Create the SQLAlchemy engine (FS DB)
     engine = get_fs_db_connection()
@@ -220,9 +253,9 @@ def load_production_data():
                         """)
 
             result = connection.execute(query)
-            print(result)
+            #print(result)
             lou_total_cases_produced = pd.DataFrame(result.fetchall(), columns=result.keys())
-            print(lou_total_cases_produced)
+            #print(lou_total_cases_produced)
             df = lou_total_cases_produced
 
             #Convert column names to lowercase and replace spaces with underscore
@@ -265,9 +298,9 @@ def load_shipping_data():
                         """)
 
             result = connection.execute(query)
-            print(result)
+            #print(result)
             lou_total_cases_shipped = pd.DataFrame(result.fetchall(), columns=result.keys())
-            print(lou_total_cases_shipped)
+            #print(lou_total_cases_shipped)
             df = lou_total_cases_shipped
 
             #Convert column names to lowercase and replace spaces with underscore
@@ -303,7 +336,7 @@ def load_daily_jobs_data():
                         )
 
             result = connection.execute(query)
-            print(result)
+            #print(result)
             lou_total_prod_jobs_per_day = pd.DataFrame(result.fetchall(), columns=result.keys())
             df = lou_total_prod_jobs_per_day
 
@@ -315,7 +348,7 @@ def load_daily_jobs_data():
 
     return df
 
-df_for_test = load_daily_jobs_data()
+df_for_test = load_item_lookup_data()
 print(list(df_for_test.columns))
 print(df_for_test.dtypes)
 print(df_for_test.head())
