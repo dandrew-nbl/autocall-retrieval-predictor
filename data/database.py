@@ -261,6 +261,9 @@ def load_production_data():
             #Convert column names to lowercase and replace spaces with underscore
             df.columns = df.columns.str.lower().str.replace(' ', '_')
 
+            # Convert null to zero
+            df.total_cases_produced_for_day = df.total_cases_produced_for_day.fillna(0)
+
             #Convert total cases produced from float to int
             df.total_cases_produced = df.total_cases_produced.astype(int)
 
@@ -306,6 +309,9 @@ def load_shipping_data():
             #Convert column names to lowercase and replace spaces with underscore
             df.columns = df.columns.str.lower().str.replace(' ', '_')
 
+            # Convert null to zero
+            df.total_cases_shipped_for_day = df.total_cases_shipped_for_day.fillna(0)
+
     except Exception as e:
         print(f"Connection failed. Error: {str(e)}")
     return df
@@ -348,7 +354,7 @@ def load_daily_jobs_data():
 
     return df
 
-df_for_test = load_item_lookup_data()
-print(list(df_for_test.columns))
-print(df_for_test.dtypes)
-print(df_for_test.head())
+# df_for_test = load_production_data()
+# print(list(df_for_test.columns))
+# print(df_for_test.dtypes)
+# print(df_for_test.head())
