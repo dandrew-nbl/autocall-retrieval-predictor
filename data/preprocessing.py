@@ -52,70 +52,35 @@ def create_enriched_dataset():
     #     how='inner'
     # ) 
     
+    
+    # Create a copy of the DataFrame so we don't alter the original DataFrame
+    df_enhanced = df_enriched.copy()
+    
     # Create line and item type dummy variables
     for line in ['LOU1', 'LOU2', 'LOU3', 'LOU4', 'LOU5']:
-        df_enriched[f'line_{line}'] = (df_enriched['line'] == line).astype(int)
+        df_enhanced[f'line_{line}'] = (df_enhanced['line'] == line).astype(int)
         
     for item_type in ['SHRF', 'LABL']:
-        df_enriched[f'item_type_{item_type}'] = (df_enriched['item_type'] == item_type).astype(int)
+        df_enhanced[f'item_type_{item_type}'] = (df_enhanced['item_type'] == item_type).astype(int)
+
+    #### FEATURE ENGINEERING ####
+
+    # Add Location Statistics
+    location_avg = df_enhanced.groupby('location_grouped')['duration_in_minutes'].mean().to_dict()
+    location_median = df_enhanced.groupby('location_grouped')['duration_in_minutes'].median().to_dict()
+    location_std = df_enhanced.groupby('location_grouped')['duration_in_minutes'].std().fillna(0).to_dict()
+
+    df_fetch_requests_enhanced['location_avg_time'] = df_fetch_requests_enhanced['location_grouped'].map(location_avg)
+    df_fetch_requests_enhanced['location_median_time'] = df_fetch_requests_enhanced['location_grouped'].map(location_median)
+    df_fetch_requests_enhanced['location_std_time'] = df_fetch_requests_enhanced['location_grouped'].map(location_std)
     
-    # # Add storage location type
-    # df_enriched['storage_location_type'] = df_enriched['from_location'].str[4:7]
-    
-    # for storage_type in ['RSR', 'SSR']:
-    #     df_enriched[f'storage_location_type_{storage_type}'] = (df_enriched['storage_location_type'] == storage_type).astype(int)
-    
-    # Add location statistics
-    location_stats = df_enriched.groupby('from_location')['duration_in_minutes'].agg(
-        location_avg_time='mean',
-        location_median_time='median',
-        location_std_time='std'
-    ).fillna(0)
-    
-    df_enriched = pd.merge(
-        df_enriched,
-        location_stats,
-        left_on='from_location',
-        right_index=True,
-        how='left'
-    )
-    
-    # # Add cross features
-    # df_enriched['rsr_with_shrf'] = ((df_enriched['storage_location_type'] == 'RSR') & 
-    #                                 (df_enriched['item_type'] == 'SHRF')).astype(int)
-    # df_enriched['ssr_with_labl'] = ((df_enriched['storage_location_type'] == 'SSR') & 
-    #                                (df_enriched['item_type'] == 'LABL')).astype(int)
-    
-    # # Add time-based features
-    # df_enriched['hour_of_day'] = df_enriched['insert_dttm'].dt.hour
-    # df_enriched['day_of_week'] = df_enriched['insert_dttm'].dt.dayofweek
-    
-    # # Create dummy variables for hours and days
-    # for hour in range(1, 24):
-    #     df_enriched[f'hour_{hour}'] = (df_enriched['hour_of_day'] == hour).astype(int)
-        
-    # for day in range(1, 7):
-    #     df_enriched[f'day_{day}'] = (df_enriched['day_of_week'] == day).astype(int)
-    
-    # # Add business hours and shift indicators
-    # df_enriched['business_hours'] = ((df_enriched['hour_of_day'] >= 8) & 
-    #                                (df_enriched['hour_of_day'] < 17) &
-    #                                (df_enriched['day_of_week'] < 5)).astype(int)
-    
-    # df_enriched['night_shift'] = ((df_enriched['hour_of_day'] >= 22) | 
-    #                              (df_enriched['hour_of_day'] < 6)).astype(int)
-    
-    # df_enriched['weekend'] = (df_enriched['day_of_week'] >= 5).astype(int)
-    
-    # Add cases ratio
-    df_enriched['cases_ratio'] = df_enriched['total_cases_produced'] / (df_enriched['total_cases_shipped'] + 1e-10)
-    df_enriched['cases_ratio'] = df_enriched['cases_ratio'].clip(0, 10)
-    
-    # # Add time + item type interactions
-    # df_enriched['morning_shrf'] = ((df_enriched['hour_of_day'] < 12) & 
-    #                              (df_enriched['item_type'] == 'SHRF')).astype(int)
-    # df_enriched['evening_labl'] = ((df_enriched['hour_of_day'] >= 17) & 
-    #                              (df_enriched['item_type'] == 'LABL')).astype(int)
+    # Calculate cases produced/shipped ratios
+    # Add a small value to avoid division by zero
+    epsilon = 1e-10
+    df_fetch_requests_enhanced['cases_ratio'] = df_fetch_requests_enhanced['total_cases_produced_for_day'] / (df_fetch_requests_enhanced['total_cases_shipped_for_day'] + epsilon)
+
+    # Cap extreme ratios to prevent outliers
+    df_fetch_requests_enhanced['cases_ratio'] = df_fetch_requests_enhanced['cases_ratio'].clip(0, 10)
     
     return df_enriched
 
@@ -123,8 +88,8 @@ def prepare_numerical_matrix(df_enriched):
     """Create the numerical matrix for model training"""
     numerical_columns = [
         'duration_in_minutes', 
-        'total_cases_produced', 
-        'total_cases_shipped',
+        'total_cases_produced_for_day', 
+        'total_cases_shipped_for_day',
         'line_LOU1', 'line_LOU2', 'line_LOU3', 'line_LOU4',
         'item_type_SHRF',
         #'storage_location_type_RSR',
