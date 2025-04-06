@@ -360,7 +360,14 @@ def load_daily_jobs_data():
 
     return df
 
-df_for_test = load_shipping_data()
-print(list(df_for_test.columns))
-print(df_for_test.dtypes)
-print(df_for_test.head())
+
+### BELOW IS FOR TESTING ONLY. ONLY TO BE UED WHEN RUNNING THIS SCRIPT AS A STANDALONE ###
+# df_for_test = load_shipping_data()
+# print(list(df_for_test.columns))
+# print(df_for_test.dtypes)
+# print(df_for_test.head())
+
+# df_for_test = load_retrieval_data()
+# print(list(df_for_test.columns))
+# print(df_for_test.dtypes)
+# print(df_for_test.head())
