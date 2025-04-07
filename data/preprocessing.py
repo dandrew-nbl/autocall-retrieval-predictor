@@ -12,7 +12,7 @@ list_of_item_types = ['SHRF', 'LABL']
 list_of_prod_lines = list_of_prod_lines[:len(list_of_prod_lines)-1]
 list_of_item_types = list_of_item_types[:len(list_of_item_types)-1]
 
-def create_enhanced_dataset():
+def create_enriched_dataset():
     """Create the enriched dataset with all features"""
     # Load data
     df_item_lookup = load_item_lookup_data()
@@ -56,44 +56,44 @@ def create_enhanced_dataset():
     )
 
     # Create a copy of the DataFrame so we don't alter the original DataFrame
-    df_enhanced = df_enriched.copy()
+    df_enriched = df_enriched.copy()
     
     for line in list_of_prod_lines:
-        df_enhanced[f'line_{line}'] = (df_enhanced['line'] == line).astype(int)
+        df_enriched[f'line_{line}'] = (df_enriched['line'] == line).astype(int)
         
     #for item_type in ['SHRF', 'LABL']:
     for item_type in list_of_item_types:
-        df_enhanced[f'item_type_{item_type}'] = (df_enhanced['item_type'] == item_type).astype(int)
+        df_enriched[f'item_type_{item_type}'] = (df_enriched['item_type'] == item_type).astype(int)
 
     #### FEATURE ENGINEERING ####
 
     # Handle Rare Locations
-    location_counts = df_enhanced['from_location'].value_counts()
+    location_counts = df_enriched['from_location'].value_counts()
     rare_locations = location_counts[location_counts < 10].index
-    df_enhanced['location_grouped'] = df_enhanced['from_location'].apply(
+    df_enriched['location_grouped'] = df_enriched['from_location'].apply(
         lambda x: 'RARE_LOCATION' if x in rare_locations else x
     )
 
     # Add Location Statistics
-    location_avg = df_enhanced.groupby('location_grouped')['duration_in_minutes'].mean().to_dict()
-    location_median = df_enhanced.groupby('location_grouped')['duration_in_minutes'].median().to_dict()
-    location_std = df_enhanced.groupby('location_grouped')['duration_in_minutes'].std().fillna(0).to_dict()
+    location_avg = df_enriched.groupby('location_grouped')['duration_in_minutes'].mean().to_dict()
+    location_median = df_enriched.groupby('location_grouped')['duration_in_minutes'].median().to_dict()
+    location_std = df_enriched.groupby('location_grouped')['duration_in_minutes'].std().fillna(0).to_dict()
 
-    df_enhanced['location_avg_time'] = df_enhanced['location_grouped'].map(location_avg)
-    df_enhanced['location_median_time'] = df_enhanced['location_grouped'].map(location_median)
-    df_enhanced['location_std_time'] = df_enhanced['location_grouped'].map(location_std)
+    df_enriched['location_avg_time'] = df_enriched['location_grouped'].map(location_avg)
+    df_enriched['location_median_time'] = df_enriched['location_grouped'].map(location_median)
+    df_enriched['location_std_time'] = df_enriched['location_grouped'].map(location_std)
     
     # Calculate cases produced/shipped ratios
     # Add a small value to avoid division by zero
     epsilon = 1e-10
-    df_enhanced['cases_ratio'] = df_enhanced['total_cases_produced_for_day'] / (df_enhanced['total_cases_shipped_for_day'] + epsilon)
+    df_enriched['cases_ratio'] = df_enriched['total_cases_produced_for_day'] / (df_enriched['total_cases_shipped_for_day'] + epsilon)
 
     # Cap extreme ratios to prevent outliers
-    df_enhanced['cases_ratio'] = df_enhanced['cases_ratio'].clip(0, 10)
+    df_enriched['cases_ratio'] = df_enriched['cases_ratio'].clip(0, 10)
     
-    return df_enhanced
+    return df_enriched
 
-def prepare_numerical_matrix(df_enhanced):
+def prepare_numerical_matrix(df_enriched):
     """Create the numerical matrix for model training"""
     numerical_columns = [
         'duration_in_minutes'
@@ -110,12 +110,12 @@ def prepare_numerical_matrix(df_enhanced):
         numerical_columns.append(f"item_type_{item_type}")
        
     # Select the columns that exist in the dataframe
-    available_columns = [col for col in numerical_columns if col in df_enhanced.columns]
+    available_columns = [col for col in numerical_columns if col in df_enriched.columns]
     
-    df_enhanced = df_enhanced[available_columns]
-    #return df_enhanced[numerical_columns]
-    return df_enhanced
+    df_enriched = df_enriched[available_columns]
+    #return df_enriched[numerical_columns]
+    return df_enriched
 
 # TESTING
-print(prepare_numerical_matrix(create_enhanced_dataset()))
+print(prepare_numerical_matrix(create_enriched_dataset()))
 
