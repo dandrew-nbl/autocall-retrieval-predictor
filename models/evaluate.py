@@ -1,3 +1,5 @@
+import sys
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -5,14 +7,19 @@ import seaborn as sns
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import joblib
 
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
+data_dir = os.path.join(project_root, "data")
+sys.path.append(data_dir)
+
 from data.preprocessing import create_enriched_dataset, prepare_numerical_matrix
 from models.train import prepare_X
 
 def evaluate_model():
     """Evaluate the trained model on test data"""
     # Load model and feature names
-    model = joblib.load('models/rf_model.joblib')
-    feature_names = joblib.load('models/feature_names.joblib')
+    model = joblib.load('rf_model.joblib')
+    feature_names = joblib.load('feature_names.joblib')
     
     # Get and prepare data
     df_enriched = create_enriched_dataset()

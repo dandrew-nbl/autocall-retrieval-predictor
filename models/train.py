@@ -1,9 +1,16 @@
+import sys
+import os
 import pandas as pd
 import numpy as np
 import joblib
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
+data_dir = os.path.join(project_root, "data")
+sys.path.append(data_dir)
+
 from data.preprocessing import create_enriched_dataset, prepare_numerical_matrix
 
 def prepare_X(df):
@@ -13,11 +20,7 @@ def prepare_X(df):
     # Remove target variable if it exists
     if 'duration_in_minutes' in df.columns:
         df = df.drop('duration_in_minutes', axis=1)
-    
-    # Drop one category from each set of dummy variables
-    columns_to_drop = ['line_LOU5', 'item_type_LABL', 'storage_location_type_SSR']
-    df = df.drop([x for x in columns_to_drop if x in df.columns], axis=1)
-    
+        
     feature_names = list(df.columns)
     X = df.values
     return X, feature_names
@@ -70,8 +73,8 @@ def train_model():
     print(f"Test RMSE: {test_rmse:.4f}")
     
     # Save model and feature names
-    joblib.dump(model, 'models/rf_model.joblib')
-    joblib.dump(feature_names, 'models/feature_names.joblib')
+    joblib.dump(model, 'rf_model.joblib')
+    joblib.dump(feature_names, 'feature_names.joblib')
     
     return model, feature_names
 
