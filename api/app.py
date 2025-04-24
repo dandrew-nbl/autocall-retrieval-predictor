@@ -12,7 +12,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from models.predict import forecast_daily_retrieval_times
 from data.database import get_future_production_schedule
-#from data.preprocessing import create_enriched_dataset, prepare_numerical_matrix
 
 app = Flask(__name__)
 

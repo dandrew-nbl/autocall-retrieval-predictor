@@ -78,7 +78,7 @@
                             <th>Date</th>
                             <th>Line</th>
                             <th>Material</th>
-                            <th>Predicted Retrieval Time (minutes)</th>
+                            <th>Avg. Predicted Retrieval Time (minutes)</th>
                             <th>Risk Level</th>
                         </tr>
                     </thead>
@@ -181,9 +181,9 @@
                 if (isNaN(minutesValue)) return 'Unknown';
                 
                 // Determine risk level based on retrieval time in minutes
-                if (minutesValue < 20) return 'Low';
-                if (minutesValue < 30) return 'Medium';
-                if (minutesValue < 40) return 'High';
+                if (minutesValue < 25) return 'Low';
+                if (minutesValue < 35) return 'Medium';
+                if (minutesValue < 45) return 'High';
                 return 'Critical';
             }
             
