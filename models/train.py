@@ -20,6 +20,9 @@ def prepare_X(df):
     # Remove target variable if it exists
     if 'duration_in_minutes' in df.columns:
         df = df.drop('duration_in_minutes', axis=1)
+
+    if 'log_duration' in df.columns:
+        df = df.drop('log_duration', axis=1)
         
     feature_names = list(df.columns)
     X = df.values

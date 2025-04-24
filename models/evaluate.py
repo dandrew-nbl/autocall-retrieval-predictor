@@ -62,7 +62,7 @@ def evaluate_model():
     plt.xlabel('Actual log10(duration)')
     plt.ylabel('Predicted log10(duration)')
     plt.title('Actual vs Predicted (log scale)')
-    plt.savefig('models/evaluation_plot.png')
+    plt.savefig('evaluation_plot.png')
     
     # Plot feature importance
     importances = model.feature_importances_
@@ -73,7 +73,7 @@ def evaluate_model():
     plt.bar(range(len(indices[:20])), importances[indices[:20]], align='center')
     plt.xticks(range(len(indices[:20])), [feature_names[i] for i in indices[:20]], rotation=90)
     plt.tight_layout()
-    plt.savefig('models/feature_importance.png')
+    plt.savefig('feature_importance.png')
     
     return {
         'rmse': rmse,
