@@ -361,6 +361,45 @@ def load_daily_jobs_data():
     return df
 
 
+def get_future_production_schedule():
+    """Get future production schedule from SQL database"""
+    # Create the SQLAlchemy engine (FS DB)
+    engine = get_fs_db_connection()
+    try:
+        with engine.connect() as connection:
+
+            # Write SQL Query here
+            query = text(
+                        
+        """
+            SELECT DISTINCT
+            a.ORGANIZATION_CODE AS ORG
+            ,CONCAT(a.ORGANIZATION_CODE,RIGHT(LINE_CODE,1)) AS Line
+            ,CONVERT(DATE, SCHEDULED_START_DATE) as Date
+            ,JOB_NUMBER as Job_Number
+            ,START_QUANTITY AS Total_Cases
+
+            FROM
+
+            production.EBS_Upcoming_Jobs a
+            LEFT JOIN Inventory.EBS_Item b
+            ON a.ITEM_NAME = b.SEGMENT1 AND a.ORGANIZATION_CODE = b.ORGANIZATION_CODE
+            WHERE 1=1
+            AND a.ORGANIZATION_CODE = 'LOU'
+
+        """
+                        )
+
+            result = connection.execute(query)
+            #print(result)
+            future_schedule = pd.DataFrame(result.fetchall(), columns=result.keys())
+            df = future_schedule
+
+    
+    except Exception as e:
+        print(f"Connection failed. Error: {str(e)}")
+    return future_schedule
+
 ### BELOW IS FOR TESTING ONLY. ONLY TO BE UED WHEN RUNNING THIS SCRIPT AS A STANDALONE ###
 # df_for_test = load_shipping_data()
 # print(list(df_for_test.columns))

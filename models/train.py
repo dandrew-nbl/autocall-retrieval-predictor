@@ -32,7 +32,7 @@ def train_model():
     """Train the Random Forest model"""
     # Get and prepare data
     df_enriched = create_enriched_dataset()
-    df_numerical = prepare_numerical_matrix(df_enriched)
+    df_numerical, ignore, ignore  = prepare_numerical_matrix(df_enriched)
     
     # Take log of duration
     df_numerical['log_duration'] = np.log10(df_numerical['duration_in_minutes'])

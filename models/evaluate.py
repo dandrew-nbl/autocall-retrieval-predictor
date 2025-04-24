@@ -23,7 +23,7 @@ def evaluate_model():
     
     # Get and prepare data
     df_enriched = create_enriched_dataset()
-    df_numerical = prepare_numerical_matrix(df_enriched)
+    df_numerical, ignore, ignore = prepare_numerical_matrix(df_enriched)
     
     # Split data into train and test sets
     from sklearn.model_selection import train_test_split

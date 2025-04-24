@@ -114,8 +114,10 @@ def prepare_numerical_matrix(df_enriched):
     
     df_enriched = df_enriched[available_columns]
     #return df_enriched[numerical_columns]
-    return df_enriched
+    return df_enriched, list_of_prod_lines, list_of_item_types
 
 # TESTING
-print(prepare_numerical_matrix(create_enriched_dataset()))
+# print(prepare_numerical_matrix(create_enriched_dataset()))
+# print(list_of_item_types)
+# print(list_of_prod_lines)
 
