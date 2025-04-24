@@ -385,7 +385,9 @@ def get_future_production_schedule():
             LEFT JOIN Inventory.EBS_Item b
             ON a.ITEM_NAME = b.SEGMENT1 AND a.ORGANIZATION_CODE = b.ORGANIZATION_CODE
             WHERE 1=1
+            AND SCHEDULED_START_DATE >= GETDATE()
             AND a.ORGANIZATION_CODE = 'LOU'
+            ORDER BY Date
 
         """
                         )

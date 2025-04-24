@@ -36,8 +36,10 @@ def forecast_daily_retrieval_times(future_production_schedule):
     DataFrame with daily average retrieval time forecasts
     """
     # Load model and feature names
-    model = joblib.load('rf_model.joblib')
-    feature_names = joblib.load('feature_names.joblib')
+    # model = joblib.load('rf_model.joblib')
+    # feature_names = joblib.load('feature_names.joblib')
+    model = joblib.load(model_path)
+    feature_names = joblib.load(feature_names_path)
     
     # First, calculate the historical average cases_ratio from your training data
     df_enriched = create_enriched_dataset()
@@ -133,12 +135,13 @@ def forecast_daily_retrieval_times(future_production_schedule):
     
     return final_df, results_df
 
-# Example usage
-future_schedule = get_future_production_schedule()
-daily_forecast, detailed_forecast = forecast_daily_retrieval_times(future_schedule)
+if __name__ == '__main__':
+    # Example usage
+    future_schedule = get_future_production_schedule()
+    daily_forecast, detailed_forecast = forecast_daily_retrieval_times(future_schedule)
 
-# Print summary
-print("Daily Average Retrieval Time Forecast:")
-#print(daily_forecast[['Date', 'total_cases_produced_for_day', 'Avg_Retrieval_Time']])
-#print(daily_forecast)
-print(detailed_forecast)
+    # Print summary
+    print("Daily Average Retrieval Time Forecast:")
+    #print(daily_forecast[['Date', 'total_cases_produced_for_day', 'Avg_Retrieval_Time']])
+    #print(daily_forecast)
+    print(detailed_forecast)
