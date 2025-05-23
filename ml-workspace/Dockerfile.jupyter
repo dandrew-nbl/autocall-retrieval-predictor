@@ -1,0 +1,51 @@
+FROM jupyter/scipy-notebook:latest
+
+# Switch to root to install system packages
+USER root
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    git \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch back to jovyan user
+USER $NB_USER
+
+# Install Python packages
+RUN pip install --no-cache-dir \
+    mlflow[extras]==2.8.1 \
+    xgboost==1.7.6 \
+    hyperopt==0.2.7 \
+    scikit-learn==1.3.2 \
+    pandas==2.1.4 \
+    numpy==1.24.4 \
+    matplotlib==3.8.2 \
+    seaborn==0.13.0 \
+    plotly==5.17.0 \
+    jupyterlab==4.0.9 \
+    ipywidgets==8.1.1 \
+    psycopg2-binary==2.9.9 \
+    pymongo==4.6.0 \
+    sqlalchemy==2.0.23 \
+    requests==2.31.0
+
+# Set environment variables
+ENV MLFLOW_TRACKING_URI=http://mlflow:5000
+
+# Create directories
+RUN mkdir -p /home/jovyan/work/notebooks \
+    && mkdir -p /home/jovyan/data \
+    && mkdir -p /home/jovyan/models
+
+# Set working directory
+WORKDIR /home/jovyan/work
+
+# Expose port
+EXPOSE 8888
+
+# Start Jupyter Lab
+CMD ["start-notebook.sh", "--NotebookApp.token=''", "--NotebookApp.password=''"]

@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.0.1
+    container_name: mlflow-server
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlflow-data:/mlflow
+      - ./artifacts:/artifacts
+    command: >
+      mlflow server 
+        --backend-store-uri sqlite:///mlflow/mlflow.db 
+        --default-artifact-root file:///artifacts 
+        --host 0.0.0.0 
+        --port 5000
+
+  # Jupyter Lab with ML libraries
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile.jupyter
+    container_name: jupyter-ml
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./data:/home/jovyan/data
+      - ./models:/home/jovyan/models
+      - ./mlflow-data:/home/jovyan/mlflow-data
+      - ./artifacts:/home/jovyan/artifacts
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - JUPYTER_ENABLE_LAB=yes
+    networks:
+      - ml-network
+    depends_on:
+      - mlflow
+    restart: unless-stopped
+
+  # Factory Systems DB Client (your existing image)
+  factory-systems:
+    image: adeji9/factory-systems-db-client:latest
+    container_name: factory-systems-client
+    volumes:
+      - ./factory-data:/app/data
+      - ./notebooks:/app/notebooks  # Share notebooks between services
+    networks:
+      - ml-network
+     environment:
+       - FACTORY_DB_FLOW_URL=${FACTORY_DB_FLOW_URL}
+    restart: unless-stopped
+
+networks:
+  ml-network:
+    driver: bridge
+
+volumes:
+  mlflow-data:
+  artifacts:
+  notebooks:
+  factory-data:
