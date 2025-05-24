@@ -6,6 +6,7 @@ A containerized machine learning environment with MLflow, Jupyter Lab, and Facto
 
 1. **Start the services:**
 ```bash
+./extract-factory-package.sh
 docker-compose up -d
 ```
 
@@ -19,18 +20,21 @@ docker-compose up -d
 ml-workspace/
 ├── docker-compose.yml     # Docker services configuration
 ├── Dockerfile.jupyter     # Jupyter container definition
-├── notebooks/            # Your Jupyter notebooks
-├── data/                # Training data, CSVs, etc.
-├── models/              # Saved models
-├── mlflow-data/         # MLflow database and metadata
-├── artifacts/           # MLflow artifacts (models, plots, etc.)
-└── factory-data/        # Data shared with factory-systems container
+├── extract-factory-package.sh  # Pulls Factory DB client from Docker image
+├── notebooks/             # Your Jupyter notebooks
+├── data/                  # Training data, CSVs, etc.
+├── models/                # Saved models
+├── mlflow-data/           # MLflow database and metadata
+├── artifacts/             # MLflow artifacts (models, plots, etc.)
+├── factory-data/          # Data shared with factory-systems container
+└── shared-packages/       # Holds the extracted Factory Systems DB client
 ```
 
 ## Usage
 
 ### Starting the Environment
 ```bash
+./extract-factory-package.sh
 docker-compose up -d
 ```
 
