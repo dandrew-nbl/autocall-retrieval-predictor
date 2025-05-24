@@ -63,4 +63,20 @@ docker run --rm -v $(pwd)/shared-packages/app:/output \
     echo '✅ Package extracted to ./shared-packages/app/'
   "
 
+# Ensure .env exists and has UID/GID
+echo "📝 Ensuring .env contains UID and GID..."
+
+touch .env
+grep -Eq '^[[:space:]]*UID=' .env || echo -e "\\nUID=$(id -u)" >> .env
+grep -Eq '^[[:space:]]*GID=' .env || echo -e "\\nGID=$(id -g)" >> .env
+
+echo "✅ .env file updated with UID and GID if they weren't already set."
+
+# Create notebooks directory with proper permissions
+echo "📁 Creating notebooks directory with correct ownership..."
+rm -rf notebooks  # ensures fresh permissions if left over
+mkdir -p notebooks
+sudo chown $(id -u):$(id -g) notebooks
+
+echo "✅ Notebooks directory ready at ./notebooks (owned by UID=$(id -u))"
 echo "🎉 Done! You can now run docker-compose up"
