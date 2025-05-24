@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # MLflow Tracking Server
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.0.1
     container_name: mlflow-server
@@ -15,6 +16,9 @@ services:
         --default-artifact-root file:///artifacts 
         --host 0.0.0.0 
         --port 5000
+    networks:
+      - ml-network
+    restart: unless-stopped
 
   # Jupyter Lab with ML libraries
   jupyter:
@@ -30,26 +34,29 @@ services:
       - ./models:/home/jovyan/models
       - ./mlflow-data:/home/jovyan/mlflow-data
       - ./artifacts:/home/jovyan/artifacts
+      - ./shared-packages:/home/jovyan/shared-packages  # Mount shared packages
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
       - JUPYTER_ENABLE_LAB=yes
+      - FACTORY_DB_FLOW_URL=${FACTORY_DB_FLOW_URL}
+      - PYTHONPATH=/home/jovyan/shared-packages/app:${PYTHONPATH}
     networks:
       - ml-network
     depends_on:
       - mlflow
     restart: unless-stopped
 
-  # Factory Systems DB Client (your existing image)
+  # Factory Systems DB Client
   factory-systems:
     image: adeji9/factory-systems-db-client:latest
     container_name: factory-systems-client
     volumes:
       - ./factory-data:/app/data
-      - ./notebooks:/app/notebooks  # Share notebooks between services
+      - ./notebooks:/app/notebooks
+    environment:
+      - FACTORY_DB_FLOW_URL=${FACTORY_DB_FLOW_URL}
     networks:
       - ml-network
-     environment:
-       - FACTORY_DB_FLOW_URL=${FACTORY_DB_FLOW_URL}
     restart: unless-stopped
 
 networks:
